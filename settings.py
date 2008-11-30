@@ -80,7 +80,7 @@ INSTALLED_APPS = (
 
 STATIC_MANAGEMENT = {
     'css': {
-        'css/main.css' : [
+        'css/main.css': [
             'css/yui-reset-fonts.css',
             'css/yui-grids.css',
             'css/apps/base.css'
@@ -93,5 +93,11 @@ STATIC_MANAGEMENT = {
             'css/main.css',
             'css/ie7.css'
         ],
+    },
+    'js': {
+        'js/main.js': [
+            'js/yui-yahoo-dom-event.js',
+            'js/base.js'
+        ]
     }
 }
