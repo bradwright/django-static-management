@@ -21,4 +21,18 @@ class Command(BaseCommand):
                 if os.path.exists(file_path):
                     sub_file_paths.append(file_path)
             combine_files(main_file_path, sub_file_paths)
+        try:
+            js_files = settings.STATIC_MANAGEMENT['js']
+        except AttributeError:
+            print "Static JS files not provided. You must provide a set of files to combine."
+            raise SystemExit
+        for main_file in js_files.keys():
+            main_file_path = os.path.join(settings.MEDIA_ROOT, main_file)
+            files = settings.STATIC_MANAGEMENT['js'][main_file]
+            sub_file_paths = []
+            for sub_file in files:
+                file_path = os.path.join(settings.MEDIA_ROOT, sub_file)
+                if os.path.exists(file_path):
+                    sub_file_paths.append(file_path)
+            combine_files(main_file_path, sub_file_paths)
             
