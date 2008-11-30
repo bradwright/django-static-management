@@ -53,7 +53,7 @@ def static_combo_js(filename):
         raise template.TemplateSyntaxError, "%s not in static combo settings" % filename
     # override the default if an override exists
     try:
-        script_format = settings.STATIC_MANAGEMENT_JS_LINK
+        script_format = settings.STATIC_MANAGEMENT_SCRIPT_SRC
     except AttributeError:
         script_format = '<script type="text/javascript" src="%s"></script>\n'
     output = ''

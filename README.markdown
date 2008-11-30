@@ -78,7 +78,7 @@ By default the CSS template tag uses HTML 4.01 style `link` elements (non self-c
 
 The Javascript template tag uses the standard construct, and only needs to be overridden if you want to force UTF-8 encoding in your files:
 
-    STATIC_MANAGEMENT_JS_LINK = '<script type="text/javascript" charset="utf-8" src="%s"></script>\n'
+    STATIC_MANAGEMENT_SCRIPT_SRC = '<script type="text/javascript" charset="utf-8" src="%s"></script>\n'
 
 License
 -------
