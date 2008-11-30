@@ -28,21 +28,16 @@ def static_combo_css(filename):
         for css_file in files:
             file_path = os.path.join(settings.MEDIA_ROOT, css_file)
             media_url = settings.MEDIA_URL
-            if os.path.exists(file_path):
-                output += link_format % os.path.join(settings.MEDIA_URL, css_file)
+            if css_file in settings.STATIC_MANAGEMENT['css'].keys():
+                # we need to get all the 'inherited' files
+                output += static_combo_css(css_file)
             else:
-                # error out, we can't combine files
-                raise template.TemplateSyntaxError, "%s does not exist" % file_path
+                if os.path.exists(file_path):
+                    output += link_format % os.path.join(settings.MEDIA_URL, css_file)
+                else:
+                    # error out, we can't combine files
+                    raise template.TemplateSyntaxError, "%s does not exist" % file_path
     else:
         # return "combined" files
         output = link_format % "%s%s" % (settings.MEDIA_URL, filename)
     return output
-
-"""    # NOTE: This should never happen, as we provide a management script to
-    # do this for you, and you should be serving your files via something 
-    # other than Django
-    file_paths = []
-    for css in files:
-        file_paths.append(os.path.join(settings.MEDIA_ROOT, css))
-    combo_file_path = os.path.join(settings.MEDIA_ROOT, filename)
-    static_combine(combo_file_path, file_paths)"""

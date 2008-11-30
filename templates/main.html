@@ -6,7 +6,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Test project</title>
     {% load static_combo %}
+    <!--[if !IE]><!-->
     {% static_combo_css "css/main.css" %}
+    <!--<![endif]-->
+    <!--[if IE 7]>
+    {% static_combo_css "css/main-ie7.css" %}
+    <![endif]-->
+    <!--[if IE 6]>
+    {% static_combo_css "css/main-ie6.css" %}
+    <![endif]-->
 </head>
 <body>
     <h1>It works!</h1>
