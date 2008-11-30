@@ -32,16 +32,16 @@ class Command(BaseCommand):
         parent_files = files.keys()
         for main_file in parent_files:
             main_file_path = os.path.join(settings.MEDIA_ROOT, main_file)
-            files = settings.STATIC_MANAGEMENT[inheritance_key][main_file]
-            sub_file_paths = []
-            for sub_file in files:
-                file_path = os.path.join(settings.MEDIA_ROOT, sub_file)
+            new_files = settings.STATIC_MANAGEMENT[inheritance_key][main_file]
+            sub_files = []
+            for sub_file in new_files:
                 if sub_file in parent_files:
-                    if sub_file in self.files_created:
-                        # file has been made - copy
-                        pass
-                    else:
-                        pass
+                    sub_files.extend(files[sub_file])
+                else:
+                    sub_files.append(sub_file)
+            sub_file_paths = []
+            for sub_file_path in sub_files:
+                file_path = os.path.join(settings.MEDIA_ROOT, sub_file_path)
                 if os.path.exists(file_path):
                     sub_file_paths.append(file_path)
             combine_files(main_file_path, sub_file_paths)
