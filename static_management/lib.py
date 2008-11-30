@@ -3,7 +3,7 @@ import sys
 
 from django.conf import settings
 
-def static_combine(end_file, to_combine, delimiter="/* Begin: %s */"):
+def static_combine(end_file, to_combine, delimiter="\n/* Begin: %s */\n"):
     """joins paths together to create a single file
     
     Usage: static_combine(my_ultimate_file, list_of_paths, [delimiter])
@@ -16,7 +16,7 @@ def static_combine(end_file, to_combine, delimiter="/* Begin: %s */"):
     for static_file in to_combine:
         if os.path.isfile(static_file):
             if delimiter:
-                combo_file.write(delimter % os.path.split(static_file)[1])
+                combo_file.write(delimiter % os.path.split(static_file)[1])
             # TODO: if some script exists in settings, run that first
             combo_file.write(file(static_file).read())
     combo_file.close()
