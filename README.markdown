@@ -8,14 +8,14 @@ Currently includes:
 
 * A template tag to echo collections of CSS files;
 * A combination function with optional delimter;
-* A sample Django project using the template tags.
+* A sample Django project using the template tags;
+* A Django management command to combine files (for building).
 
 Will (eventually) include:
 -------------
 
 * JS as well as CSS template tags;
 * Support for time stamped file names (for far-future-expires);
-* A Django management command to combine files (for building);
 * Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.);
 * Unit tests;
 * Sample web server configuration for Gzip, mod\_deflate etc. (since you really shouldn't be serving static assets via Django in production).
