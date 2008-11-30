@@ -7,71 +7,51 @@ from static_management.lib import static_combine
 register = template.Library()
 
 @register.simple_tag
-def static_combo_css(filename):
+def static_combo_css(file_name):
     """combines files in settings
     
     {% static_combo_css "css/main.css" %}"""
-    try:
-        # Splitting by None == splitting by spaces.
-        files = settings.STATIC_MANAGEMENT.get('css').get(filename)
-    except AttributeError:
-        raise template.TemplateSyntaxError, "%s not in static combo settings" % filename
     # override the default if an override exists
     try:
         link_format = settings.STATIC_MANAGEMENT_CSS_LINK
     except AttributeError:
         link_format = '<link rel="stylesheet" type="text/css" href="%s">\n'
-    output = ''
-    if settings.DEBUG:
-        # we need to echo out each one
-        for css_file in files:
-            file_path = os.path.join(settings.MEDIA_ROOT, css_file)
-            media_url = settings.MEDIA_URL
-            if css_file in settings.STATIC_MANAGEMENT['css'].keys():
-                # we need to get all the 'inherited' files
-                output += static_combo_css(css_file)
-            else:
-                if os.path.exists(file_path):
-                    output += link_format % os.path.join(settings.MEDIA_URL, css_file)
-                else:
-                    # error out, we can't combine files
-                    raise template.TemplateSyntaxError, "%s does not exist" % file_path
-    else:
-        # return "combined" files
-        output = link_format % "%s%s" % (settings.MEDIA_URL, filename)
+    output = _group_file_names_and_output(file_name, link_format, 'css')
     return output
 
 @register.simple_tag
-def static_combo_js(filename):
+def static_combo_js(file_name):
     """combines files in settings
     
     {% static_combo_js "js/main.js" %}"""
-    try:
-        # Splitting by None == splitting by spaces.
-        files = settings.STATIC_MANAGEMENT.get('js').get(filename)
-    except AttributeError:
-        raise template.TemplateSyntaxError, "%s not in static combo settings" % filename
     # override the default if an override exists
     try:
         script_format = settings.STATIC_MANAGEMENT_SCRIPT_SRC
     except AttributeError:
         script_format = '<script type="text/javascript" src="%s"></script>\n'
+    output = _group_file_names_and_output(file_name, script_format, 'js')
+    return output
+
+def _group_file_names_and_output(parent_name, output_format, inheritance_key):
+    """helper function to do most of the heavy lifting of the above template tags"""
+    try:
+        file_names = settings.STATIC_MANAGEMENT.get(inheritance_key).get(parent_name)
+    except AttributeError:
+        raise template.TemplateSyntaxError, "%s not in static combo settings" % parent_name
     output = ''
     if settings.DEBUG:
         # we need to echo out each one
-        for js_file in files:
-            file_path = os.path.join(settings.MEDIA_ROOT, js_file)
-            media_url = settings.MEDIA_URL
-            if js_file in settings.STATIC_MANAGEMENT['js'].keys():
-                # we need to get all the 'inherited' files
-                output += static_combo_css(js_file)
+        media_url = settings.MEDIA_URL
+        for file_name in file_names:
+            file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+            if file_name in settings.STATIC_MANAGEMENT[inheritance_key]:
+                output += _group_file_names_and_output(file_name, output_format, inheritance_key)
             else:
                 if os.path.exists(file_path):
-                    output += script_format % os.path.join(settings.MEDIA_URL, js_file)
+                    output += output_format % os.path.join(settings.MEDIA_URL, file_name)
                 else:
-                    # error out, we can't combine files
                     raise template.TemplateSyntaxError, "%s does not exist" % file_path
     else:
         # return "combined" files
-        output = script_format % "%s%s" % (settings.MEDIA_URL, filename)
+        output = output_format % "%s%s" % (settings.MEDIA_URL, parent_name)
     return output
