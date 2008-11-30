@@ -1,5 +1,4 @@
 import os
-import sys
 
 from django import template
 from django.conf import settings
