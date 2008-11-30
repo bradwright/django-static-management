@@ -18,7 +18,7 @@ Will (eventually) include:
 * A Django management command to combine files (for building);
 * Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.);
 * Unit tests;
-* Sample web server configuration for Gzip, mod_deflate etc. (since you really shouldn't be serving static assets via Django in production).
+* Sample web server configuration for Gzip, mod\_deflate etc. (since you really shouldn't be serving static assets via Django in production).
 
 Usage
 -----
