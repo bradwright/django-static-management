@@ -75,4 +75,23 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'static_management',
 )
+
+STATIC_MANAGEMENT = {
+    'css': {
+        'css/main.css' : [
+            'css/yui-reset-fonts.css',
+            'css/yui-grids.css',
+            'css/apps/base.css'
+        ],
+        'css/main-ie6.css' : [
+            'css/main.css',
+            'css/ie6.css'
+        ],
+        'css/main-ie7.css' : [
+            'css/main.css',
+            'css/ie7.css'
+        ],
+    }
+}
