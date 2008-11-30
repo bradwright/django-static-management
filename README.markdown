@@ -25,6 +25,8 @@ Usage
 
 The configuration is intended to be easy to read and use.
 
+Add the `static_management` directory into your Django application, and included it in `installed_apps`.
+
 ### Settings
 
 Add the following construct (or similar) in `settings.py`:
