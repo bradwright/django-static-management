@@ -3,11 +3,11 @@ import os
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from static_management.lib import static_combine as combine_files
+from static_management.lib import static_combine
 
 class Command(BaseCommand):
-    
-    def handle(self, *args, **options):
+    """static management commands for static_combine argument"""
+    def handle(self, *args, **kwargs):
         self.files_created = []
         self.combine_js()
         self.combine_css()
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         except AttributeError:
             print "Static JS files not provided. You must provide a set of files to combine."
             raise SystemExit
-        self._combine_files(js_files, 'js')
+        combine_files(js_files)
     
     def combine_css(self):
         try:
@@ -26,24 +26,36 @@ class Command(BaseCommand):
         except AttributeError:
             print "Static CSS files not provided. You must provide a set of files to combine."
             raise SystemExit
-        self._combine_files(css_files, 'css')
+        combine_files(css_files)
     
-    def _combine_files(self, files, inheritance_key):
-        parent_files = files.keys()
-        for main_file in parent_files:
-            main_file_path = os.path.join(settings.MEDIA_ROOT, main_file)
-            new_files = settings.STATIC_MANAGEMENT[inheritance_key][main_file]
-            sub_files = []
-            for sub_file in new_files:
-                if sub_file in parent_files:
-                    sub_files.extend(files[sub_file])
-                else:
-                    sub_files.append(sub_file)
-            sub_file_paths = []
-            for sub_file_path in sub_files:
-                file_path = os.path.join(settings.MEDIA_ROOT, sub_file_path)
-                if os.path.exists(file_path):
-                    sub_file_paths.append(file_path)
-            combine_files(main_file_path, sub_file_paths)
-            self.files_created.append(main_file)
+def combine_files(files):
+    for main_file in files:
+        # create file
+        main_file_path = os.path.join(settings.MEDIA_ROOT, main_file)
+        # go and get sub files
+        to_combine = recurse_files(main_file, files[main_file], files)
+        to_combine_paths = [os.path.join(settings.MEDIA_ROOT, f_name) for f_name in to_combine if os.path.exists(os.path.join(settings.MEDIA_ROOT, f_name))]
+        static_combine(os.path.join(settings.MEDIA_ROOT, main_file), to_combine_paths)
+
+def recurse_files(name, files, top):
+    """
+    given following format:
     
+    {
+        "filename": ["file1", "file2", "file3"],
+        "filename2": ["filename", "file4"]
+    }
+    
+    name="filename"
+    files=["file1", "file2", "file3"]
+    top = Whole dictionary
+    
+    if a value on the left appears on the right, inherit those files
+    """
+    combine_files = []
+    for to_cat in files:
+        if to_cat in top:
+            combine_files.extend(recurse_files(to_cat, top[to_cat], top))
+        else:
+            combine_files.append(to_cat)
+    return combine_files
