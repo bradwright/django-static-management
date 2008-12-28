@@ -80,6 +80,13 @@ The Javascript template tag uses the standard construct, and only needs to be ov
 
     STATIC_MANAGEMENT_SCRIPT_SRC = '<script type="text/javascript" charset="utf-8" src="%s"></script>\n'
 
+### Management commands
+
+The following command will generate all the files as per your settings:
+
+    ./manage.py static_combine
+
+
 License
 -------
 
