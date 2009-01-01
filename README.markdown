@@ -10,13 +10,13 @@ Currently includes:
 * A combination function with optional delimter;
 * A sample Django project using the template tags;
 * JS as well as CSS template tags;
-* A Django management command to combine files (for building).
+* A Django management command to combine files (for building);
+* Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.).
 
 Will (eventually) include:
 -------------
 
 * Support for time stamped file names (for far-future-expires);
-* Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.);
 * Unit tests;
 * Sample web server configuration for Gzip, mod\_deflate etc. (since you really shouldn't be serving static assets via Django in production).
 
@@ -86,6 +86,14 @@ The following command will generate all the files as per your settings:
 
     ./manage.py static_combine
 
+#### Compression
+
+Passing an argument of `--compress` to the above command will run the compression script of your choice, as specified in: `settings.STATIC_MANAGEMENT_COMPRESS_CMD`. This should be a string representing the script you want to run. The only caveat is that it must accept a filepath as an argument and return output to `stdout` (the management command reads from `stdout`). Following is an example using YUI Compressor (which this command was designed to use):
+
+    # settings.py
+    STATIC_MANAGEMENT_COMPRESS_CMD = 'java -jar /home/myuser/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar %s'
+
+where `%s` represents the path of the file to be compressed.
 
 License
 -------
