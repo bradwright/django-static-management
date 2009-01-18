@@ -27,6 +27,12 @@ The configuration is intended to be easy to read and use.
 
 Add the `static_management` directory into your Django application, and included it in `installed_apps`.
 
+You can include the current version as a `git submodule` as follows:
+
+    git submodule add git://github.com/bradleywright/django-static-management.git django_site_dir/static_management
+
+Substitute `django_site_dir` with the root directory of your Django application (where `manage.py` and `settings.py` live).
+
 ### Settings
 
 Add the following construct (or similar) in `settings.py`:
