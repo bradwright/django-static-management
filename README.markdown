@@ -101,6 +101,11 @@ Passing an argument of `--compress` to the above command will run the compressio
 
 where `%s` represents the path of the file to be compressed.
 
+Using this within a Django project
+----------------------------------
+
+The 1.0 tag of this project contains a sample Django project to help demonstrate usage. This code structure will not be followed beyond the initial version--a `git submodule` is now the preferred way of using this application.
+
 License
 -------
 
