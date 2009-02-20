@@ -43,7 +43,7 @@ Add the following construct (or similar) in `settings.py`:
                 'css/myfile.css',
                 'css/anotherfile.css'
             ],
-        }
+        },
         'js': {
             'js/myjsfile.js' : [
                 'js/mynewfile.js',
