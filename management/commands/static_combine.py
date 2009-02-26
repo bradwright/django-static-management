@@ -4,13 +4,14 @@ from optparse import OptionParser, make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from static_management.lib import static_combine
+from static_management.lib import static_combine, get_version, add_version, write_versions
 
 class Command(BaseCommand):
     """static management commands for static_combine argument"""
     
     option_list = BaseCommand.option_list + (
         make_option("-c", "--compress", action="store_true", dest="compress", default=False, help='Runs the compression script defined in "STATIC_MANAGEMENT_COMPRESS_CMD" on the final combined files'),
+        make_option("-o", "--output", action="store_true", dest="output", default=False, help='Outputs the list of filenames with version info using the "STATIC_MANAGEMENT_VERSION_OUTPUT"'),
     )
     
     def handle(self, *args, **kwargs):
@@ -36,6 +37,7 @@ class Command(BaseCommand):
         combine_files(css_files, self.options)
     
 def combine_files(files, options):
+    versions = {}
     for main_file in files:
         # create file
         main_file_path = os.path.join(settings.MEDIA_ROOT, main_file)
@@ -43,6 +45,10 @@ def combine_files(files, options):
         to_combine = recurse_files(main_file, files[main_file], files)
         to_combine_paths = [os.path.join(settings.MEDIA_ROOT, f_name) for f_name in to_combine if os.path.exists(os.path.join(settings.MEDIA_ROOT, f_name))]
         static_combine(os.path.join(settings.MEDIA_ROOT, main_file), to_combine_paths, compress=options['compress'])
+        if options['output']:
+            versions[main_file] = get_versioned_filename(os.path.join(settings.MEDIA_ROOT, main_file), main_file, settings.STATIC_MANAGEMENT_VERSIONER)
+    if options['output']:
+        write_versions(versions, settings.STATIC_MANAGEMENT_VERSION_WRITER)
 
 def recurse_files(name, files, top):
     """
