@@ -5,6 +5,43 @@ import subprocess
 from django.conf import settings
 from django.core.management.base import CommandError
 
+def get_version(end_file, relative_filename, versioner):
+    """gets the file version based on the versioner provided"""
+    try:
+        dot = versioner.rindex('.')
+    except ValueError:
+        raise exceptions.ImproperlyConfigured, '%s isn\'t a versioner' % versioner
+    v_module, v_classname = versioner[:dot], versioner[dot+1:]
+    try:
+        mod = __import__(v_module, {}, {}, [''])
+    except ImportError, e:
+        raise exceptions.ImproperlyConfigured, 'Error importing versioner %s: "%s"' % (v_module, e)
+    try:
+        v_class = getattr(mod, v_classname)
+    except AttributeError:
+        raise exceptions.ImproperlyConfigured, 'Versioner module "%s" does not define a "%s" class' % (v_module, v_classname)
+
+    version = v_class()(end_file)
+    dot = relative_filename.rindex('.')
+    return relative_filename[:dot+1] + version + relative_filename[dot:]
+
+def write_versions(versions, version_writer):
+    """writes the versions specified in the dictionary provided"""
+    try:
+        dot = version_writer.rindex('.')
+    except ValueError:
+        raise exceptions.ImproperlyConfigured, '%s isn\'t a version writer' % version_writer
+    v_module, v_classname = version_writer[:dot], version_writer[dot+1:]
+    try:
+        mod = __import__(v_module, {}, {}, [''])
+    except ImportError, e:
+        raise exceptions.ImproperlyConfigured, 'Error importing version writer %s: "%s"' % (v_module, e)
+    try:
+        v_class = getattr(mod, v_classname)
+    except AttributeError:
+        raise exceptions.ImproperlyConfigured, 'Version writer module "%s" does not define a "%s" class' % (v_module, v_classname)
+    v_class()(versions)
+
 def static_combine(end_file, to_combine, delimiter="\n/* Begin: %s */\n", compress=False):
     """joins paths together to create a single file
     
