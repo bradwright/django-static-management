@@ -12,11 +12,11 @@ Currently includes:
 * JS as well as CSS template tags;
 * A Django management command to combine files (for building);
 * Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.).
+* Support for filename versioning (using SHA1 sums, file modification times, etc.).
 
 Will (eventually) include:
 -------------
 
-* Support for time stamped file names (for far-future-expires);
 * Unit tests;
 * Sample web server configuration for Gzip, mod\_deflate etc. (since you really shouldn't be serving static assets via Django in production).
 
@@ -86,6 +86,30 @@ The Javascript template tag uses the standard construct, and only needs to be ov
 
     STATIC_MANAGEMENT_SCRIPT_SRC = '<script type="text/javascript" charset="utf-8" src="%s"></script>\n'
 
+### File versioning
+
+In order to help meet [performance recommendations](http://developer.yahoo.net/blog/archives/2007/05/high_performanc_2.html) which encourage the use of `Expires:` headers, static management supports versioning files.
+
+To use, simply define a dictionary that maps relative filenames to versioned filenames:
+
+    STATIC_MANAGEMENT_VERSIONS = {
+        'js/main.js': 'js/main.12345.js'
+    }
+
+#### Version class
+
+Specify the type of file versioning with a setting like:
+
+    STATIC_MANAGEMENT_VERSIONER = 'static_management.versioners.SHA1Sum'
+
+The following pre-rolled versioners are included:
+
+* `SHA1Sum` - Calculates the SHA1 sum of a file's contents and uses the first 8 characters for the version
+* `MD5Sum` - Same as `SHA1Sum` but using the MD5 algorithm instead
+* `FileTimestamp` - Uses the UNIX time representation of the file modification time to generate a version
+
+Custom versioners are simple callables that take a single filename argument.
+
 ### Management commands
 
 The following command will generate all the files as per your settings:
@@ -100,6 +124,12 @@ Passing an argument of `--compress` to the above command will run the compressio
     STATIC_MANAGEMENT_COMPRESS_CMD = 'java -jar /home/myuser/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar %s'
 
 where `%s` represents the path of the file to be compressed.
+
+#### Versioning
+
+The `--output` argument will generate a list of versioned filenames and output them using the method of your choice, as specified in: `settings.STATIC_MANAGEMENT_VERSION_WRITER`.  This should be a callable which takes a dictionary of the structured defined above in `STATIC_MANAGEMENT_VERSIONS`.
+
+Note: It is often useful to use this mechanism to write the list of files to a configuration file and read from the same file in `settings.py`.
 
 Using this within a Django project
 ----------------------------------
