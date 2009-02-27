@@ -13,6 +13,7 @@ Currently includes:
 * A Django management command to combine files (for building);
 * Support for command line minification/compression when building (YUI compressor, JSMin, Icy etc.).
 * Support for filename versioning (using SHA1 sums, file modification times, etc.).
+* Support for versioning other static assets (e.g. images, Flash files, etc.).
 
 Will (eventually) include:
 -------------
@@ -69,11 +70,13 @@ Other files may inherit from `css/mymainfile.css` (for example, IE hack files) b
 
 ### Templates
 
-In your templates, you use the `static_combo` template tag library:
+In your templates, you use the `static_combo` and `static_asset` template tag libraries:
 
-    {% load static_combo %}
+    {% load static_combo static_asset %}
     {% static_combo_css "css/mymainfile.css" %}
-    ... rest of page ...
+    ...
+    <img alt="Company logo" src="{% static_asset "img/logo.png" %}">
+    ...
     {% static_combo_js "js/myjsfile.js" %}
 
 Where `css/mymainfile.css` is the "combined" file name from your settings. In `DEBUG` mode, this will echo out all the files in order (for debugging purposes). In production mode, it will only echo the "combined" file name.
@@ -93,8 +96,20 @@ In order to help meet [performance recommendations](http://developer.yahoo.net/b
 To use, simply define a dictionary that maps relative filenames to versioned filenames:
 
     STATIC_MANAGEMENT_VERSIONS = {
-        'js/main.js': 'js/main.12345.js'
+        'js/main.js': 'http://cdn1.example.com/js/main.15274671.js',
+        'js/main.css': 'http://cdn2.example.com/js/main.82773622.css',
+        'img/logo.png': 'http://cdn1.example.com/img/logo.99182772.png',
+        'img/icon.png': 'http://cdn2.example.com/img/icon.31901927.png'
     }
+
+#### Media URL hostnames
+
+To provide the absolute URL for versioned files, define the `STATIC_MANAGEMENT_HOSTNAMES` setting to include a list of hostnames:
+
+    STATIC_MANAGEMENT_HOSTNAMES = [
+        'http://cdn1.example.com/',
+        'http://cdn2.example.com/'
+    ]
 
 #### Version class
 
@@ -109,6 +124,17 @@ The following pre-rolled versioners are included:
 * `FileTimestamp` - Uses the UNIX time representation of the file modification time to generate a version
 
 Custom versioners are simple callables that take a single filename argument.
+
+#### Other static assets (non-JS, non-CSS)
+
+If the `STATIC_MANAGEMENT_ASSET_PATHS` value is set, the combiner will traverse the filesystem looking for files which match the `STATIC_MANAGEMENT_ASSET_PATTERN` regular expression, adding them to the `STATIC_MANAGEMENT_VERSIONS` setting.  For example:
+
+    STATIC_MANAGEMENT_ASSET_PATHS = [('static/swf/', False), ('static/img/', False)]
+    STATIC_MANAGEMENT_ASSET_PATTERN = .*(\.(png|jpg|gif|swf))
+
+`STATIC_MANAGEMENT_ASSET_PATHS` should include a list of pairs where the first element is the path and the second is a boolean value which specifies whether or not the path should be recursed.
+
+Any usage of the `static_combo_asset` template tag will produce the fully-qualified path for the asset.  After the versioning of static assets is complete, it will modify the combined CSS file(s) by replacing filenames with full versioned URIs.
 
 ### Management commands
 

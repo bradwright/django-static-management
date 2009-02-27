@@ -57,5 +57,5 @@ def _group_file_names_and_output(parent_name, output_format, inheritance_key):
         except AttributeError:
             raise template.TemplateSyntaxError, "%s not in static version settings" % parent_name
         # return "combined" files
-        output = output_format % "%s%s" % (settings.MEDIA_URL, parent_name)
+        output = output_format % "%s" % parent_name
     return output

@@ -1,11 +1,28 @@
 import os
 import shutil
+import re
 from optparse import OptionParser, make_option
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from static_management.lib import static_combine, get_version, write_versions
+
+# TODO: Use user-supplied pattern?
+CSS_ASSET_PATTERN = re.compile('(url\(((.*)\.([a-z]{3,4}))\))')
+
+def relpath(path, start):
+    """This only works on POSIX systems and is ripped out of Python 2.6 posixpath.py"""
+    start_list = os.path.abspath(start).split('/')
+    path_list = os.path.abspath(path).split('/')
+
+    # Work out how much of the filepath is shared by start and path.
+    i = len(os.path.commonprefix([start_list, path_list]))
+
+    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
+    if not rel_list:
+        return curdir
+    return os.path.join(*rel_list)
 
 class Command(BaseCommand):
     """static management commands for static_combine argument"""
@@ -19,9 +36,15 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.options = kwargs
         self.files_created = []
+        self.versions = {}
+        self.abs_versions = {}
+        self.css_files = []
+        map(self.files_created.append, self.find_assets())
         self.combine_js()
         self.combine_css()
-        self.store_versions()
+        self.get_versions()
+        map(self.replace_css, self.css_files)
+        self.write_versions()
     
     def combine_js(self):
         try:
@@ -30,7 +53,7 @@ class Command(BaseCommand):
             print "Static JS files not provided. You must provide a set of files to combine."
             raise SystemExit
         combine_files(js_files, self.options)
-        [self.files_created.append(file) for file in js_files]
+        map(self.files_created.append, js_files)
     
     def combine_css(self):
         try:
@@ -39,17 +62,68 @@ class Command(BaseCommand):
             print "Static CSS files not provided. You must provide a set of files to combine."
             raise SystemExit
         combine_files(css_files, self.options)
-        [self.files_created.append(file) for file in css_files]
+        for file in css_files:
+            self.css_files.append(file)
+            self.files_created.append(file)
 
-    def store_versions(self):
-        versions = {}
+    def replace_css(self, filename):
+        tmp = os.tmpfile()
+        rel_filename = os.path.join(settings.MEDIA_ROOT, filename)
+        css = open(rel_filename, mode='r')
+        for line in css:
+            matches = []
+            for match in re.finditer(CSS_ASSET_PATTERN, line):
+                try:
+                    grp = match.groups()
+                    asset = relpath(os.path.join(os.path.dirname(rel_filename), grp[1]), settings.MEDIA_ROOT)
+                    asset_version = 'url(%s)' % self.abs_versions[asset]
+                    matches.append((grp[0], asset_version))
+                except KeyError:
+                    print "Failed to find %s in version map. Is it an absolute path?" % asset
+                    raise SystemExit
+            for old, new in matches:
+                line = line.replace(old, new)
+            tmp.write(line + '\n')
+        tmp.flush()
+        tmp.seek(0)
+        css.close()
+        css = open(rel_filename, mode='wb')
+        shutil.copyfileobj(tmp, css)
+
+    def find_assets(self):
+        if settings.STATIC_MANAGEMENT_ASSET_PATHS:
+            exp = re.compile(settings.STATIC_MANAGEMENT_ASSET_PATTERN)
+            for path, recurse in settings.STATIC_MANAGEMENT_ASSET_PATHS:
+                if recurse:
+                    for root, dirs, files in os.walk(os.path.join(settings.MEDIA_ROOT, path)):
+                        for filename in files:
+                            if exp.match(filename):
+                                yield relpath(os.path.join(root, filename), settings.MEDIA_ROOT)
+                else:
+                    for filename in os.listdir(os.path.join(settings.MEDIA_ROOT, path)):
+                        full_filename = os.path.join(settings.MEDIA_ROOT, os.path.join(path, filename))
+                        if not isdir(full_filename):
+                            if exp.match(filename):
+                                yield relpath(full_filename, settings.MEDIA_ROOT)
+
+    def get_versions(self):
+        hosts = settings.STATIC_MANAGEMENT_HOSTNAMES
+        i = 0
         for main_file in self.files_created:
-            versions[main_file] = get_version(os.path.join(settings.MEDIA_ROOT, main_file), main_file, settings.STATIC_MANAGEMENT_VERSIONER)
+            if i > len(hosts) - 1:
+                i = 0
+            version = get_version(os.path.join(settings.MEDIA_ROOT, main_file), main_file, settings.STATIC_MANAGEMENT_VERSIONER)
+            self.versions[main_file] = version
+            self.abs_versions[main_file] = hosts[i] + version
+            i += 1
+
+    def write_versions(self):
+        for main_file in self.files_created:
             if self.options['write-version']:
                 shutil.copy2(os.path.join(settings.MEDIA_ROOT, main_file),
-                             os.path.join(settings.MEDIA_ROOT, versions[main_file]))
+                             os.path.join(settings.MEDIA_ROOT, self.versions[main_file]))
         if self.options['output']:
-            write_versions(versions, settings.STATIC_MANAGEMENT_VERSION_WRITER)
+            write_versions(self.abs_versions, settings.STATIC_MANAGEMENT_VERSION_WRITER)
 
 def combine_files(files, options):
     for main_file in files:
