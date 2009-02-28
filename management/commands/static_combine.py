@@ -83,7 +83,7 @@ class Command(BaseCommand):
                     raise SystemExit
             for old, new in matches:
                 line = line.replace(old, new)
-            tmp.write(line + '\n')
+            tmp.write(line)
         tmp.flush()
         tmp.seek(0)
         css.close()
