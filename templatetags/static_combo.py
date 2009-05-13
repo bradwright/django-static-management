@@ -1,4 +1,5 @@
 import os
+import time
 
 from django import template
 from django.conf import settings
@@ -48,7 +49,8 @@ def _group_file_names_and_output(parent_name, output_format, inheritance_key):
                 output += _group_file_names_and_output(file_name, output_format, inheritance_key)
             else:
                 if os.path.exists(file_path):
-                    output += output_format % os.path.join(settings.MEDIA_URL, file_name)
+                    # need to append a cachebust as per static_asset
+                    output += output_format % "%s?cachebust=%s" % (os.path.join(settings.MEDIA_URL, file_name), time.time())
                 else:
                     raise template.TemplateSyntaxError, "%s does not exist" % file_path
     else:
