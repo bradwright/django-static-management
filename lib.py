@@ -69,6 +69,8 @@ def static_combine(end_file, to_combine, delimiter="\n/* Begin: %s */\n", compre
                 raise CommandError("No string substitution provided for the input file to be passed to the argument ('cmd %s')")
             proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             to_write = proc.communicate()[0]
+            if proc.returncode != 0:
+                raise CommandError("STATIC_MANAGEMENT_COMPRESS_CMD failed to run: %s" % command)
             compressed_file = open(end_file, 'w')
             compressed_file.write(to_write)
             compressed_file.close()
