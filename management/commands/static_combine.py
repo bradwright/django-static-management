@@ -51,7 +51,7 @@ class Command(BaseCommand):
             js_files = settings.STATIC_MANAGEMENT['js']
         except AttributeError:
             print "Static JS files not provided. You must provide a set of files to combine."
-            raise SystemExit
+            raise SystemExit(1)
         combine_files(js_files, self.options)
         map(self.files_created.append, js_files)
     
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             css_files = settings.STATIC_MANAGEMENT['css']
         except AttributeError:
             print "Static CSS files not provided. You must provide a set of files to combine."
-            raise SystemExit
+            raise SystemExit(1)
         combine_files(css_files, self.options)
         for file in css_files:
             self.css_files.append(file)
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                     matches.append((grp[0], asset_version))
                 except KeyError:
                     print "Failed to find %s in version map. Is it an absolute path?" % asset
-                    raise SystemExit
+                    raise SystemExit(1)
             for old, new in matches:
                 line = line.replace(old, new)
             tmp.write(line)
