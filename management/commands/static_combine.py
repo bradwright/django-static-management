@@ -102,7 +102,7 @@ class Command(BaseCommand):
                 else:
                     for filename in os.listdir(os.path.join(settings.MEDIA_ROOT, path)):
                         full_filename = os.path.join(settings.MEDIA_ROOT, os.path.join(path, filename))
-                        if not isdir(full_filename):
+                        if not os.path.isdir(full_filename):
                             if exp.match(filename):
                                 yield relpath(full_filename, settings.MEDIA_ROOT)
 
