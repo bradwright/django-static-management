@@ -56,7 +56,7 @@ def _group_file_names_and_output(parent_name, output_format, inheritance_key):
     else:
         try:
             parent_name = settings.STATIC_MANAGEMENT_VERSIONS[parent_name]
-        except AttributeError:
+        except (AttributeError, KeyError):
             raise template.TemplateSyntaxError, "%s not in static version settings" % parent_name
         # return "combined" files
         output = output_format % "%s" % parent_name
