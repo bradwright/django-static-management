@@ -50,7 +50,10 @@ def _group_file_names_and_output(parent_name, output_format, inheritance_key):
             else:
                 if os.path.exists(file_path):
                     # need to append a cachebust as per static_asset
-                    output += output_format % "%s?cachebust=%s" % (os.path.join(settings.MEDIA_URL, file_name), time.time())
+                    to_output = output_format % os.path.join(settings.MEDIA_URL, file_name)
+                    if settings.STATIC_MANAGEMENT_CACHEBUST:
+                        to_output += "?cachebust=%s" % time.time()
+                    output += to_output
                 else:
                     raise template.TemplateSyntaxError, "%s does not exist" % file_path
     else:
