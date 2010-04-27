@@ -51,7 +51,7 @@ def _group_file_names_and_output(parent_name, output_format, inheritance_key):
                 if os.path.exists(file_path):
                     # need to append a cachebust as per static_asset
                     to_output = output_format % os.path.join(settings.MEDIA_URL, file_name)
-                    if getattr(settings, 'STATIC_MANAGEMENT_CACHEBUST') and settings.STATIC_MANAGEMENT_CACHEBUST:
+                    if hasattr(settings, 'STATIC_MANAGEMENT_CACHEBUST') and settings.STATIC_MANAGEMENT_CACHEBUST:
                         to_output += "?cachebust=%s" % time.time()
                     output += to_output
                 else:
