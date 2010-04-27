@@ -8,8 +8,10 @@ from django.conf import settings
 
 from static_management.lib import static_combine, get_version, write_versions
 
-# TODO: Use user-supplied pattern?
-CSS_ASSET_PATTERN = re.compile('(url\(((.*?)\.([a-z]{3,4}))\))')
+try:
+    CSS_ASSET_PATTERN = re.compile(settings.STATIC_MANAGEMENT_CSS_ASSET_PATTERN)
+except AttributeError:
+    CSS_ASSET_PATTERN = re.compile('(url\(((.*?)\.([a-z]{3,4}))\))')
 
 def relpath(path, start):
     """This only works on POSIX systems and is ripped out of Python 2.6 posixpath.py"""
