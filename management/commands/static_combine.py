@@ -11,7 +11,7 @@ from static_management.lib import static_combine, get_version, write_versions
 try:
     CSS_ASSET_PATTERN = re.compile(settings.STATIC_MANAGEMENT_CSS_ASSET_PATTERN)
 except AttributeError:
-    CSS_ASSET_PATTERN = re.compile('(url\(((.*?)\.([a-z]{3,4}))\))')
+    CSS_ASSET_PATTERN = re.compile('(?P<url>url(\([\'"]?(?P<filename>[^)]+\.[a-z]{3,4})[\'"]?\)))')
 
 def relpath(path, start):
     """This only works on POSIX systems and is ripped out of Python 2.6 posixpath.py"""
@@ -76,10 +76,10 @@ class Command(BaseCommand):
             matches = []
             for match in re.finditer(CSS_ASSET_PATTERN, line):
                 try:
-                    grp = match.groups()
-                    asset = relpath(os.path.join(os.path.dirname(rel_filename), grp[1]), settings.MEDIA_ROOT)
+                    grp = match.groupdict()
+                    asset = relpath(os.path.join(os.path.dirname(rel_filename), grp['filename']), settings.MEDIA_ROOT)
                     asset_version = 'url(%s)' % self.abs_versions[asset]
-                    matches.append((grp[0], asset_version))
+                    matches.append((grp['url'], asset_version))
                 except KeyError:
                     print "Failed to find %s in version map. Is it an absolute path?" % asset
                     raise SystemExit(1)
