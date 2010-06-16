@@ -130,7 +130,7 @@ Custom versioners are simple callables that take a single filename argument.
 If the `STATIC_MANAGEMENT_ASSET_PATHS` value is set, the combiner will traverse the filesystem looking for files which match the `STATIC_MANAGEMENT_ASSET_PATTERN` regular expression, adding them to the `STATIC_MANAGEMENT_VERSIONS` setting.  For example:
 
     STATIC_MANAGEMENT_ASSET_PATHS = [('static/swf/', False), ('static/img/', False)]
-    STATIC_MANAGEMENT_ASSET_PATTERN = .*(\.(png|jpg|gif|swf))
+    STATIC_MANAGEMENT_ASSET_PATTERN = '.*(\.(png|jpg|gif|swf))'
 
 `STATIC_MANAGEMENT_ASSET_PATHS` should include a list of pairs where the first element is the path and the second is a boolean value which specifies whether or not the path should be recursed.
 
