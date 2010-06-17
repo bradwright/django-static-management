@@ -80,7 +80,11 @@ class Command(BaseCommand):
             for match in re.finditer(CSS_ASSET_PATTERN, line):
                 try:
                     grp = match.groupdict()
-                    asset = relpath(os.path.join(os.path.dirname(rel_filename), grp['filename']), settings.MEDIA_ROOT)
+                    if grp['filename'].startswith('/'):
+                        asset_path = os.path.join(settings.MEDIA_ROOT, '.'+grp['filename'])
+                    else:
+                        asset_path = os.path.join(os.path.dirname(rel_filename), grp['filename'])
+                    asset = relpath(asset_path, settings.MEDIA_ROOT)
                     asset_version = 'url(%s)' % self.abs_versions[asset]
                     matches.append((grp['url'], asset_version))
                 except KeyError:
