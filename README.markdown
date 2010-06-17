@@ -153,7 +153,7 @@ where `%s` represents the path of the file to be compressed.
 
 #### Versioning
 
-The `--output` argument will generate a list of versioned filenames and output them using the method of your choice, as specified in: `settings.STATIC_MANAGEMENT_VERSION_WRITER`.  This should be a callable which takes a dictionary of the structured defined above in `STATIC_MANAGEMENT_VERSIONS`.
+The `--output` argument will generate a list of versioned filenames and output them using the method of your choice, as specified in: `settings.STATIC_MANAGEMENT_VERSION_WRITER`.  This should be the name of a callable object or class, which takes a dictionary of the structured defined above in `STATIC_MANAGEMENT_VERSIONS.
 
 Note: It is often useful to use this mechanism to write the list of files to a configuration file and read from the same file in `settings.py`.
 
