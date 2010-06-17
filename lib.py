@@ -41,7 +41,10 @@ def write_versions(versions, version_writer):
         v_class = getattr(mod, v_classname)
     except AttributeError:
         raise exceptions.ImproperlyConfigured, 'Version writer module "%s" does not define a "%s" class' % (v_module, v_classname)
-    v_class()(versions)
+    try:
+        v_class(versions)
+    except TypeError:
+        v_class()(versions)
 
 def static_combine(end_file, to_combine, delimiter="\n/* Begin: %s */\n", compress=False):
     """joins paths together to create a single file
