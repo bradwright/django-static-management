@@ -157,7 +157,7 @@ The `--output` argument will generate a list of versioned filenames and output t
 
 Note: It is often useful to use this mechanism to write the list of files to a configuration file and read from the same file in `settings.py`.
 
-The `--version` argument will copy the relatively filename (e.g. `js/main.js`) to the versioned filename (e.g. `js/main.123456.js`).
+The `--write-version` argument will copy the relative filename (e.g. `js/main.js`) to the versioned filename (e.g. `js/main.123456.js`).
 
 Using this within a Django project
 ----------------------------------
