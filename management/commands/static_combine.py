@@ -80,7 +80,8 @@ class Command(BaseCommand):
             for match in re.finditer(CSS_ASSET_PATTERN, line):
                 try:
                     grp = match.groupdict()
-                    if grp['filename'].startswith('/'):
+                    absolute = grp['filename'].startswith('/')
+                    if absolute:
                         asset_path = os.path.join(settings.MEDIA_ROOT, '.'+grp['filename'])
                     else:
                         asset_path = os.path.join(os.path.dirname(rel_filename), grp['filename'])
