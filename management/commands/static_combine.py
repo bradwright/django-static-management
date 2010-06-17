@@ -13,18 +13,21 @@ try:
 except AttributeError:
     CSS_ASSET_PATTERN = re.compile('(?P<url>url(\([\'"]?(?P<filename>[^)]+\.[a-z]{3,4})[\'"]?\)))')
 
-def relpath(path, start):
-    """This only works on POSIX systems and is ripped out of Python 2.6 posixpath.py"""
-    start_list = os.path.abspath(start).split('/')
-    path_list = os.path.abspath(path).split('/')
+try:
+    from os.path import relpath
+except ImportError:
+    def relpath(path, start):
+        """This only works on POSIX systems and is ripped out of Python 2.6 posixpath.py"""
+        start_list = os.path.abspath(start).split('/')
+        path_list = os.path.abspath(path).split('/')
 
-    # Work out how much of the filepath is shared by start and path.
-    i = len(os.path.commonprefix([start_list, path_list]))
+        # Work out how much of the filepath is shared by start and path.
+        i = len(os.path.commonprefix([start_list, path_list]))
 
-    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
-    if not rel_list:
-        return curdir
-    return os.path.join(*rel_list)
+        rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return curdir
+        return os.path.join(*rel_list)
 
 class Command(BaseCommand):
     """static management commands for static_combine argument"""
