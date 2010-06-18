@@ -58,6 +58,7 @@ What happens is that files inside `css` and `js` are combined as follows:
 1. `css/mymainfile.css` (the "key" of the key/value pair) is the target file, which is created automatically from the list of files (the "value" of the key/value pair) beside it;
 2. If the files do not exist, the entire file is skipped;
 3. Paths are *relative* to `settings.MEDIA_ROOT` (so you're unlikely to need to move files around in an already working Django project).
+4. The combined css file should be in the same directory as the files it's constructed from.
 
 Other files may inherit from `css/mymainfile.css` (for example, IE hack files) by including it in their list of files, like so:
 
