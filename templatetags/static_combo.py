@@ -39,7 +39,7 @@ def static_combo_js(file_name):
 def _group_file_names_and_output(parent_name, output_format, inheritance_key):
     """helper function to do most of the heavy lifting of the above template tags"""
     try:
-        file_names = settings.STATIC_MANAGEMENT.get(inheritance_key).get(parent_name)
+        file_names = settings.STATIC_MANAGEMENT[inheritance_key][parent_name]
     except AttributeError:
         raise template.TemplateSyntaxError, "%s not in static combo settings" % parent_name
     output = ''
