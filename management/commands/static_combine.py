@@ -46,9 +46,12 @@ class Command(BaseCommand):
         self.css_files = []
         map(self.files_created.append, self.find_assets())
         self.combine_js()
-        self.combine_css()
+        # Do the get_versions for everything except the CSS
         self.get_versions()
+        self.combine_css()
         map(self.replace_css, self.css_files)
+        # Do the CSS get_versions only after having replaced all references in the CSS.
+        self.get_versions(css_only=True)
         self.write_versions()
     
     def combine_js(self):
@@ -116,10 +119,14 @@ class Command(BaseCommand):
                             if exp.match(filename):
                                 yield relpath(full_filename, settings.MEDIA_ROOT)
 
-    def get_versions(self):
+    def get_versions(self, css_only=False):
         hosts = settings.STATIC_MANAGEMENT_HOSTNAMES
         i = 0
-        for main_file in self.files_created:
+        if css_only:
+            files = self.css_files
+        else:
+            files = self.files_created
+        for main_file in files:
             if i > len(hosts) - 1:
                 i = 0
             version = get_version(os.path.join(settings.MEDIA_ROOT, main_file), main_file, settings.STATIC_MANAGEMENT_VERSIONER)
