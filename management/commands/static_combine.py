@@ -11,7 +11,7 @@ from static_management.lib import static_combine, get_version, write_versions
 try:
     CSS_ASSET_PATTERN = re.compile(settings.STATIC_MANAGEMENT_CSS_ASSET_PATTERN)
 except AttributeError:
-    CSS_ASSET_PATTERN = re.compile('(?P<url>url(\([\'"]?(?P<filename>[^)]+\.[a-z]{3,4})(#\w+)?[\'"]?\)))')
+    CSS_ASSET_PATTERN = re.compile('(?P<url>url(\([\'"]?(?P<filename>[^)]+\.[a-z]{3,4})(?P<fragment>#\w+)?[\'"]?\)))')
 
 try:
     from os.path import relpath
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                     else:
                         asset_path = os.path.join(os.path.dirname(rel_filename), grp['filename'])
                     asset = relpath(asset_path, settings.MEDIA_ROOT)
-                    asset_version = 'url(%s)' % self.abs_versions[asset]
+                    asset_version = 'url(%s%s)' % (self.abs_versions[asset], grp['fragment'] or '')
                     matches.append((grp['url'], asset_version))
                 except KeyError:
                     print "Failed to find %s in version map. Is it an absolute path?" % asset
