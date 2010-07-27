@@ -53,7 +53,9 @@ def static_combine(end_file, to_combine, delimiter="\n/* Begin: %s */\n", compre
     
     delimiter is set to a Javascript and CSS safe comment to note where files 
     start"""
-    # open and clobber file
+    # FIXME this fails in the face of @import directives in the CSS.
+    # a) we need to move all remote @imports up to the top
+    # b) we need to recursively expand all local @imports
     combo_file = open(end_file, 'w')
     to_write = ''
     for static_file in to_combine:
