@@ -26,7 +26,7 @@ except ImportError:
 
         rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
         if not rel_list:
-            return curdir
+            return '.'
         return os.path.join(*rel_list)
 
 class Command(BaseCommand):
